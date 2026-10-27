@@ -2609,7 +2609,14 @@ window.__kuoTower = true; window.__kuoStarts = () => starts;
 </script>
 <script>
 (function(){ var l=document.getElementById('kload'); if(!l) return; var t0=performance.now(), done=false;
-  function hide(){ if(done) return; done=true; var wait=Math.max(0,1750-performance.now()); setTimeout(function(){ l.classList.add('out'); setTimeout(function(){ l.remove(); },600); },wait); }
+  /* se espera a que la carita quede dibujada completa (fin del trazo de la boca) y recién ahí se va */
+  function phase(){ var m=l.querySelector('.kd-m'), a=m&&m.getAnimations?m.getAnimations()[0]:null; if(!a||a.currentTime==null) return null; return a.currentTime%2000; }
+  function hide(){ if(done) return; done=true;
+    var p=phase(), wait;
+    if(p==null) wait=Math.max(0,1800-performance.now());
+    else { var full=1680, end=1840; wait = p<full ? full-p : (p<=end-120 ? 0 : 2000-p+full); }
+    setTimeout(function(){ l.querySelectorAll('.kd').forEach(function(k){ k.style.animation='none'; k.style.strokeDashoffset='0'; k.style.opacity='1'; });
+      setTimeout(function(){ l.classList.add('out'); setTimeout(function(){ l.remove(); },600); },180); },wait); }
   if(document.readyState==='complete') hide(); else addEventListener('load',hide);
   setTimeout(hide,8000); })();
 </script>
